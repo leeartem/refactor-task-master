@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Entities\User\User;
 use App\Domain\Services\User\AuthorizeUser;
 use App\Domain\Services\User\Dto\AuthorizeUserCredentialsDto;
 use App\Domain\Services\User\Dto\StoreUserDto;
@@ -10,9 +9,6 @@ use App\Domain\Services\User\StoreUser;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\LogoutRequest;
 use App\Http\Requests\RegisterRequest;
-use App\Http\Resources\User\AuthenticationUserResource;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -31,7 +27,7 @@ class UserController extends Controller
         return response()->json(
             [
                 'success' => true,
-                'user' => $user,
+                'user' => $user, // по-хорошему использовать таки ресурс
                 'token' => $user->createToken('apiToken')->plainTextToken
             ],
             201
