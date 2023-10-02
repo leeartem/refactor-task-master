@@ -19,10 +19,10 @@ class AccountController extends Controller
         return LoyaltyAccount::create($request->all());
     }
 
-    public function activate(string $type, int $id, AccountRequest $request)
+    public function activate(string $type, string $value, AccountRequest $request)
     {
         /** @var LoyaltyAccount $account */
-        if (!$account = LoyaltyAccount::where($type, $id)->first()) {
+        if (!$account = LoyaltyAccount::where($type, $value)->first()) {
             return response()->json(['message' => 'Account is not found'], 400);
         }
 
@@ -35,10 +35,10 @@ class AccountController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function deactivate(string $type, int $id, AccountRequest $request)
+    public function deactivate(string $type, string $value, AccountRequest $request)
     {
         /** @var LoyaltyAccount $account */
-        if (!$account = LoyaltyAccount::where($type, $id)->first()) {
+        if (!$account = LoyaltyAccount::where($type, $value)->first()) {
             return response()->json(['message' => 'Account is not found'], 400);
         }
 
@@ -50,10 +50,10 @@ class AccountController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function balance(string $type, int $id, AccountRequest $request)
+    public function balance(string $type, string $value, AccountRequest $request)
     {
         /** @var LoyaltyAccount $account */
-        if (!$account = LoyaltyAccount::where($type, $id)->first()) {
+        if (!$account = LoyaltyAccount::where($type, $value)->first()) {
             return response()->json(['message' => 'Account is not found'], 400);
         }
 

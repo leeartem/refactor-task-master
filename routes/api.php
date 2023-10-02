@@ -23,15 +23,15 @@ Route::post('user/login', [UserController::class, 'login'])->name('login');
 
     // account management
     Route::post('account/create', [AccountController::class, 'create'])->name('account.create');
-    Route::post('account/activate/{type}/{id}', [AccountController::class, 'activate'])->where([
-            'type' => '[a-zA-Z]+',
-            'id' => '[0-9]+'
-        ])->name('account.activate');
-    Route::post('account/deactivate/{type}/{id}', [AccountController::class, 'deactivate'])->where([
-        'type' => '[a-zA-Z]+',
-        'id' => '[0-9]+'
-    ])->name('account.deactivate');
-    Route::get('account/balance/{type}/{id}', [AccountController::class, 'balance'])->name('account.balance');
+    Route::group(['middleware' => ['account.check']], function () {
+        Route::post('account/activate/{type}/{$value}', [AccountController::class, 'activate'])->where([
+                'type' => '[a-zA-Z]+'
+            ])->name('account.activate');
+        Route::post('account/deactivate/{type}/{$value}', [AccountController::class, 'deactivate'])->where([
+            'type' => '[a-zA-Z]+'
+        ])->name('account.deactivate');
+        Route::get('account/balance/{type}/{$value}', [AccountController::class, 'balance'])->name('account.balance');
+    });
 
     // loyalty points management
     Route::post('loyaltyPoints/deposit', [LoyaltyPointsController::class, 'deposit'])->name('loyalty-points.deposit');
