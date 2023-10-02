@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\LoyaltyPointsRule;
+use App\Domain\Entities\LoyaltyPointsRule\LoyaltyPointsRule;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -22,6 +22,8 @@ class CreateLoyaltyPointsRuleTable extends Migration
             $table->timestamps();
         });
 
+        // будем считать в миграции я не заглядывал и этого не видел,
+        // но если бы заглянул, то создание этих сущностей вынес бы в сидеры
         $rules = [
             [
                 'points_rule' => 'Wine +5',

@@ -2,65 +2,61 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LoyaltyAccount;
+use App\Domain\Entities\LoyaltyAccount\LoyaltyAccount;
+use App\Events\LoyaltyAccountStatusChangedEvent;
+use App\Http\Requests\AccountRequest;
 use Illuminate\Http\Request;
 
+// кроме user контроллера я не буду уж выносить логику, и все разбивать, так много времени на это уходит
 class AccountController extends Controller
 {
     public function create(Request $request)
     {
+        // тут все аналогично юзерам
+        // делаем кастомный реквест с валидацией
+        // создаем репозиторий, выносим сторинг в сервис
+        // передав значения через ДТО
         return LoyaltyAccount::create($request->all());
     }
 
-    public function activate($type, $id)
+    public function activate(string $type, string $value, AccountRequest $request)
     {
-        if (($type == 'phone' || $type == 'card' || $type == 'email') && $id != '') {
-            if ($account = LoyaltyAccount::where($type, '=', $id)->first()) {
-                if (!$account->active) {
-                    $account->active = true;
-                    $account->save();
-                    $account->notify('Account restored');
-                }
-            } else {
-                return response()->json(['message' => 'Account is not found'], 400);
-            }
-        } else {
-            throw new \InvalidArgumentException('Wrong parameters');
+        /** @var LoyaltyAccount $account */
+        if (!$account = LoyaltyAccount::where($type, $value)->first()) {
+            return response()->json(['message' => 'Account is not found'], 400);
         }
+
+        // в идеале конечно для активации/деактивации свой мини сервис нужно создать
+        $account->setActive();
+        event(
+            new LoyaltyAccountStatusChangedEvent($account->id, $account->active)
+        );
 
         return response()->json(['success' => true]);
     }
 
-    public function deactivate($type, $id)
+    public function deactivate(string $type, string $value, AccountRequest $request)
     {
-        if (($type == 'phone' || $type == 'card' || $type == 'email') && $id != '') {
-            if ($account = LoyaltyAccount::where($type, '=', $id)->first()) {
-                if ($account->active) {
-                    $account->active = false;
-                    $account->save();
-                    $account->notify('Account banned');
-                }
-            } else {
-                return response()->json(['message' => 'Account is not found'], 400);
-            }
-        } else {
-            throw new \InvalidArgumentException('Wrong parameters');
+        /** @var LoyaltyAccount $account */
+        if (!$account = LoyaltyAccount::where($type, $value)->first()) {
+            return response()->json(['message' => 'Account is not found'], 400);
         }
+
+        $account->setActive(false);
+        event(
+            new LoyaltyAccountStatusChangedEvent($account->id, $account->active)
+        );
 
         return response()->json(['success' => true]);
     }
 
-    public function balance($type, $id)
+    public function balance(string $type, string $value, AccountRequest $request)
     {
-        if (($type == 'phone' || $type == 'card' || $type == 'email') && $id != '') {
-            if ($account = LoyaltyAccount::where($type, '=', $id)->first()) {
-                return response()->json(['balance' => $account->getBalance()], 400);
-
-            } else {
-                return response()->json(['message' => 'Account is not found'], 400);
-            }
-        } else {
-            throw new \InvalidArgumentException('Wrong parameters');
+        /** @var LoyaltyAccount $account */
+        if (!$account = LoyaltyAccount::where($type, $value)->first()) {
+            return response()->json(['message' => 'Account is not found'], 400);
         }
+
+        return response()->json(['balance' => $account->getBalance()], 400);
     }
 }
