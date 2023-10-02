@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\Entities\LoyaltyAccount;
 
+use App\Domain\Entities\LoyaltyPointsTransaction\LoyaltyPointsTransaction;
 use App\Mail\AccountActivated;
 use App\Mail\AccountDeactivated;
 use Illuminate\Database\Eloquent\Model;
@@ -26,19 +27,22 @@ class LoyaltyAccount extends Model
         return LoyaltyPointsTransaction::where('canceled', '=', 0)->where('account_id', '=', $this->id)->sum('points_amount');
     }
 
-    public function notify()
+    public function notify(): void
     {
-        if ($this->email != '' && $this->email_notification) {
-            if ($this->active) {
-                Mail::to($this)->send(new AccountActivated($this->getBalance()));
-            } else {
-                Mail::to($this)->send(new AccountDeactivated());
+        // этот метод мне не нравится
+        if ($this->email_notification) {
+            if (!empty($this->email)) {
+                if ($this->active) {
+                    Mail::to($this)->send(new AccountActivated($this->getBalance()));
+                } else {
+                    Mail::to($this)->send(new AccountDeactivated());
+                }
             }
-        }
 
-        if ($this->phone != '' && $this->phone_notification) {
-            // instead SMS component
-            Log::info('Account: phone: ' . $this->phone . ' ' . ($this->active ? 'Activated' : 'Deactivated'));
+            if (!empty($this->phone )) {
+                // instead SMS component
+                Log::info('Account: phone: ' . $this->phone . ' ' . ($this->active ? 'Activated' : 'Deactivated'));
+            }
         }
     }
 

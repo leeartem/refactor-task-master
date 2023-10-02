@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Entities\LoyaltyAccount\LoyaltyAccount;
 use App\Events\LoyaltyAccountStatusChangedEvent;
 use App\Http\Requests\AccountRequest;
-use App\Models\LoyaltyAccount;
 use Illuminate\Http\Request;
 
 // кроме user контроллера я не буду уж выносить логику, и все разбивать, так много времени на это уходит
